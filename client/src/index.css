@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Albert+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Albert Sans', sans-serif;
+  --font-display: 'Sora', sans-serif;
+
+  /* Modern Gradient: Green - Ôvento Palette */
+  --background: 45 60% 97%;
+  --foreground: 20 15% 12%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 20 15% 12%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 15% 12%;
+  
+  --primary: 134 70% 45%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 120 60% 50%;
+  --secondary-foreground: 0 0% 100%;
+  
+  --muted: 40 8% 88%;
+  --muted-foreground: 20 8% 45%;
+  
+  --accent: 134 70% 90%;
+  --accent-foreground: 134 70% 25%;
+  
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 40 8% 92%;
+  --input: 40 8% 94%;
+  --ring: 134 70% 45%;
+  
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 20 15% 10%;
+  --foreground: 45 60% 95%;
+  
+  --card: 20 20% 14%;
+  --card-foreground: 45 60% 95%;
+  
+  --popover: 20 20% 14%;
+  --popover-foreground: 45 60% 95%;
+  
+  --primary: 134 70% 55%;
+  --primary-foreground: 20 15% 10%;
+  
+  --secondary: 120 60% 60%;
+  --secondary-foreground: 20 15% 10%;
+  
+  --muted: 20 15% 25%;
+  --muted-foreground: 45 10% 65%;
+  
+  --accent: 134 70% 35%;
+  --accent-foreground: 134 70% 90%;
+  
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 20 20% 22%;
+  --input: 20 20% 20%;
+  --ring: 134 70% 55%;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold tracking-tight;
+  }
+}
+
+/* Custom Utilities for Modern Design */
+.glass-card {
+  @apply bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl border border-border/40 shadow-lg hover:shadow-xl transition-all duration-300;
+}
+
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:border-primary/60 cursor-pointer;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-primary;
+}
+
+.smooth-animation {
+  @apply transition-all duration-300 ease-out;
+}
+
+.event-card {
+  @apply relative rounded-2xl overflow-hidden bg-card border border-border shadow-sm card-hover;
+}
+
+.event-image-wrapper {
+  @apply relative h-56 bg-gradient-to-br from-primary/10 to-secondary/10 overflow-hidden;
+}
+
+.glass-badge {
+  @apply bg-white/90 dark:bg-slate-800/90 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-semibold border border-border/50 shadow-sm;
+}
