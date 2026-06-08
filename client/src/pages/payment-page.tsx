@@ -21,6 +21,7 @@ function CheckoutForm({ session }: { session: PendingPaymentSession }) {
   const elements = useElements();
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
+  const [stripeReady, setStripeReady] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [succeeded, setSucceeded] = useState(false);
 
@@ -31,35 +32,38 @@ function CheckoutForm({ session }: { session: PendingPaymentSession }) {
     setLoading(true);
     setErrorMessage(null);
 
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      redirect: "if_required",
-    });
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        redirect: "if_required",
+      });
 
-    if (error) {
-      setErrorMessage(error.message ?? "Le paiement a échoué. Veuillez réessayer.");
-      setLoading(false);
-      return;
-    }
-
-    if (paymentIntent?.status === "succeeded") {
-      // Confirm inscription on backend (webhook not available on localhost)
-      try {
-        await fetch(`/api/payments/${session.paymentId}/stripe-confirm`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
-        });
-      } catch {
-        // Non-blocking — inscription may be confirmed later via webhook
+      if (error) {
+        setErrorMessage(error.message ?? "Le paiement a échoué. Veuillez réessayer.");
+        setLoading(false);
+        return;
       }
-      setSucceeded(true);
-      sessionStorage.removeItem("pendingPayment");
-      setTimeout(() => {
-        setLocation(`/event/${session.eventId}?payment=success`);
-      }, 1500);
-      return;
+
+      if (paymentIntent?.status === "succeeded") {
+        try {
+          await fetch(`/api/payments/${session.paymentId}/stripe-confirm`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ paymentIntentId: paymentIntent.id }),
+          });
+        } catch {
+          // Non-blocking
+        }
+        setSucceeded(true);
+        sessionStorage.removeItem("pendingPayment");
+        setTimeout(() => {
+          setLocation(`/event/${session.eventId}?payment=success`);
+        }, 1500);
+        return;
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message ?? "Une erreur inattendue est survenue. Veuillez réessayer.");
     }
 
     setLoading(false);
@@ -82,10 +86,15 @@ function CheckoutForm({ session }: { session: PendingPaymentSession }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {!stripeReady && (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <span className="ml-2 text-sm text-muted-foreground">Chargement du formulaire de paiement…</span>
+        </div>
+      )}
       <PaymentElement
-        options={{
-          layout: "tabs",
-        }}
+        options={{ layout: "tabs" }}
+        onReady={() => setStripeReady(true)}
       />
 
       {errorMessage && (
@@ -97,7 +106,7 @@ function CheckoutForm({ session }: { session: PendingPaymentSession }) {
       <Button
         type="submit"
         className="w-full h-11 text-base font-semibold"
-        disabled={loading || !stripe || !elements}
+        disabled={loading || !stripe || !elements || !stripeReady}
       >
         {loading ? (
           <>
