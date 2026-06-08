@@ -13,7 +13,7 @@ import { Loader2, ArrowLeft, Lock, CreditCard, CheckCircle2 } from "lucide-react
 import { Link } from "wouter";
 import type { PendingPaymentSession } from "@/hooks/use-payment";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY as string);
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || "pk_test_51TfmluPccfhQWH4SWCSbCy7gbxC092LdiadvSbXQeMgmvD8Ll3Ka582jTpB2WDEdXkoheGr6T1TQCwV5FdGkv0Ch00T6gL1M0o");
 
 // ─── Inner checkout form (needs Stripe context) ───────────────────────────────
 function CheckoutForm({ session }: { session: PendingPaymentSession }) {
