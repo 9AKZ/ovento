@@ -1,15 +1,49 @@
 import { useAuth } from "@/hooks/use-auth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMyEvents } from "@/hooks/use-events";
 import { api } from "../../shared/routes";
-import { Loader2, Calendar, MapPin, LogOut } from "lucide-react";
+import { Loader2, Calendar, MapPin, LogOut, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProfilePage() {
   const { user, logoutMutation } = useAuth();
+  const [, setLocation] = useLocation();
+  const [deleting, setDeleting] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/users/me", { method: "DELETE", credentials: "include" });
+      if (!res.ok) throw new Error();
+      queryClient.setQueryData([api.auth.me.path], null);
+      queryClient.clear();
+      toast({ title: "Compte supprimé", description: "Vos données ont été effacées." });
+      setLocation("/");
+    } catch {
+      toast({ title: "Erreur", description: "Impossible de supprimer le compte.", variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
   
   const { data: myEvents, isLoading: loadingMyEvents } = useMyEvents();
 
@@ -48,7 +82,7 @@ export default function ProfilePage() {
           <div className="mt-2 text-sm text-muted-foreground space-y-1">
             <div className="flex items-center">
               <Calendar className="w-3.5 h-3.5 mr-2" />
-              {format(new Date(event.startDatetime), "d MMM yyyy • HH:mm")}
+              {format(new Date(event.startDatetime), "d MMM yyyy • HH:mm", { locale: fr })}
             </div>
             <div className="flex items-center">
               <MapPin className="w-3.5 h-3.5 mr-2" />
@@ -76,9 +110,32 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        <Button variant="outline" onClick={() => logoutMutation.mutate()} className="text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50">
-          <LogOut className="w-4 h-4 mr-2" /> Déconnexion
-        </Button>
+        <div className="flex flex-col items-end gap-2">
+          <Button variant="outline" onClick={() => logoutMutation.mutate()} className="text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50">
+            <LogOut className="w-4 h-4 mr-2" /> Déconnexion
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-destructive" disabled={deleting}>
+                <Trash2 className="w-3 h-3 mr-1" /> Supprimer mon compte
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Supprimer votre compte ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action est irréversible. Toutes vos données personnelles, vos événements et vos inscriptions seront supprimés définitivement.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteAccount} className="bg-destructive hover:bg-destructive/90">
+                  Supprimer définitivement
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-12">

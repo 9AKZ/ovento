@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: ovento-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: JWT_ACCESS_EXP
+        value: 7d
+      - key: JWT_REFRESH_EXP
+        value: 30d
+      - key: UPLOAD_DIR
+        value: ./uploads
+      - key: LOG_LEVEL
+        value: info
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100

@@ -93,18 +93,13 @@ function useLogoutMutation() {
 
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch(api.auth.logout.path, { 
+      const res = await fetch(api.auth.logout.path, {
         method: api.auth.logout.method,
         credentials: "include",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken') || ''}`,
-        }
       });
       if (!res.ok) throw new Error("Logout failed");
     },
     onSuccess: () => {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
       queryClient.setQueryData([api.auth.me.path], null);
       toast({ title: "Déconnexion réussie", description: "À bientôt!" });
     },
@@ -118,11 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data, isLoading, error } = useQuery({
     queryKey: [api.auth.me.path],
     queryFn: async () => {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-      const headers: Record<string, string> = {};
-      if (token) headers.Authorization = `Bearer ${token}`;
-
-      const res = await fetch(api.auth.me.path, { credentials: "include", headers });
+      const res = await fetch(api.auth.me.path, { credentials: "include" });
       if (res.status === 401) return null;
       if (!res.ok) throw new Error("Failed to fetch user");
       const payload = await res.json();

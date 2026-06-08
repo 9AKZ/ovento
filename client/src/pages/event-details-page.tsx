@@ -1,8 +1,12 @@
 import { useRoute, Link, useLocation } from "wouter";
+import { useEffect } from "react";
 import { useEvent, useJoinEvent, useLeaveEvent, useDeleteEvent, usePublishEvent, useUnpublishEvent, useCancelEvent } from "@/hooks/use-events";
+import { useInitializePayment, type PendingPaymentSession } from "@/hooks/use-payment";
 import { useAuth } from "@/hooks/use-auth";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import {
   Calendar,
   MapPin,
@@ -13,10 +17,11 @@ import {
   Trash2,
   Edit,
   Loader2,
-  Sparkles,
-  CheckCircle2,
+  Euro,
+  CreditCard,
 } from "lucide-react";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,10 +37,12 @@ import { motion } from "framer-motion";
 
 export default function EventDetailsPage() {
   const [match, params] = useRoute("/event/:id");
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const id = (params as any)?.id ?? "";
   const { data, isLoading, error } = useEvent(id);
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const joinMutation = useJoinEvent();
   const leaveMutation = useLeaveEvent();
@@ -43,6 +50,17 @@ export default function EventDetailsPage() {
   const publishMutation = usePublishEvent();
   const unpublishMutation = useUnpublishEvent();
   const cancelMutation = useCancelEvent();
+  const initPaymentMutation = useInitializePayment();
+
+  // Detect return from Stripe payment success
+  useEffect(() => {
+    if (location.includes("payment=success")) {
+      toast({ title: "Paiement réussi !", description: "Vous êtes maintenant inscrit à cet événement." });
+      queryClient.invalidateQueries();
+      // Clean URL without reload
+      window.history.replaceState({}, "", `/event/${id}`);
+    }
+  }, []);
 
   const isAdmin = user?.role === 'ADMIN';
 
@@ -74,10 +92,33 @@ export default function EventDetailsPage() {
 
   const { event } = data;
 
+  const isPaid = Number(event.price) > 0;
+
   const handleJoinToggle = () => {
     if (!user) return setLocation("/auth");
     if (event.isJoined) {
       leaveMutation.mutate(event.id);
+      return;
+    }
+    if (isPaid) {
+      initPaymentMutation.mutate(String(event.id), {
+        onSuccess: (paymentData) => {
+          if (!paymentData.clientSecret) {
+            toast({ title: "Erreur", description: "Paiement non disponible pour cet événement.", variant: "destructive" });
+            return;
+          }
+          const session: PendingPaymentSession = {
+            paymentId: paymentData.paymentId,
+            eventId: String(event.id),
+            amount: paymentData.amount,
+            currency: paymentData.currency,
+            clientSecret: paymentData.clientSecret,
+            eventTitle: event.title,
+          };
+          sessionStorage.setItem("pendingPayment", JSON.stringify(session));
+          setLocation(`/payment/${paymentData.paymentId}`);
+        },
+      });
     } else {
       joinMutation.mutate(event.id);
     }
@@ -124,8 +165,8 @@ export default function EventDetailsPage() {
         
         {/* Price Badge */}
         <div className="absolute top-6 right-6">
-          <Badge className="glass-badge bg-white/90 text-foreground text-base font-bold px-4 py-2 shadow-lg">
-            {Number(event.price) === 0 ? "Gratuit" : `€${event.price}`}
+          <Badge className="bg-primary text-white text-base font-bold px-4 py-2 shadow-lg border-0 rounded-full">
+            {Number(event.price) === 0 ? 'Gratuit' : `${event.price}€`}
           </Badge>
         </div>
 
@@ -181,7 +222,7 @@ export default function EventDetailsPage() {
                 <p className="text-sm font-semibold text-muted-foreground">Date & Heure</p>
               </div>
               <p className="text-lg font-bold">
-                {format(new Date(event.startDatetime), "EEEE d MMMM yyyy")}
+                {format(new Date(event.startDatetime), "EEEE d MMMM yyyy", { locale: fr })}
               </p>
               <p className="text-sm font-semibold text-primary">
                 {format(new Date(event.startDatetime), "HH:mm")}
@@ -212,8 +253,8 @@ export default function EventDetailsPage() {
                   <span className="text-xs text-muted-foreground">Capacité: {event.capacity}</span>
                 </div>
                 <div className="w-full bg-muted h-3 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-gradient-to-r from-primary to-secondary h-full rounded-full transition-all duration-500"
+                  <div
+                    className="bg-primary h-full rounded-full transition-all duration-300"
                     style={{ width: `${Math.min((event.participantCount / event.capacity) * 100, 100)}%` }}
                   />
                 </div>
@@ -231,7 +272,7 @@ export default function EventDetailsPage() {
           {event.organizer && (
             <div className="glass-card p-6 rounded-2xl">
               <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-primary" />
+                <Users className="w-5 h-5 text-primary" />
                 <h3 className="font-semibold text-lg">Organisateur</h3>
               </div>
               <div className="flex items-center gap-4">
@@ -267,7 +308,7 @@ export default function EventDetailsPage() {
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="w-4 h-4 text-primary" />
                   <span className="font-medium">Date de fin:</span>
-                  <span>{format(new Date(event.endDatetime), "EEEE d MMMM yyyy à HH:mm")}</span>
+                  <span>{format(new Date(event.endDatetime), "EEEE d MMMM yyyy à HH:mm", { locale: fr })}</span>
                 </div>
                 {event.currency && event.currency !== 'EUR' && (
                   <div className="flex items-center gap-2 text-sm">
@@ -358,26 +399,28 @@ export default function EventDetailsPage() {
             </>
             ) : !user ? (
               <Link href="/auth">
-                <Button className="w-full h-11 text-base font-semibold rounded-lg shadow-lg transition-all bg-muted text-foreground border border-border">
-                  Se connecter
+                <Button className="w-full h-11 text-base font-semibold rounded-lg">
+                  Se connecter pour s'inscrire
                 </Button>
               </Link>
             ) : (
-              <Button 
+              <Button
                 onClick={handleJoinToggle}
-                disabled={joinMutation.isPending || leaveMutation.isPending}
-                className={`w-full h-11 text-base font-semibold rounded-lg shadow-lg transition-all ${
-                  event.isJoined 
-                    ? "bg-destructive text-white border border-destructive hover:bg-destructive/90" 
-                    : "bg-gradient-to-r from-primary to-secondary text-white border-0 hover:shadow-xl"
-                }`}
+                disabled={joinMutation.isPending || leaveMutation.isPending || initPaymentMutation.isPending}
+                variant={event.isJoined ? "destructive" : "default"}
+                className="w-full h-11 text-base font-semibold rounded-lg"
               >
-                {joinMutation.isPending || leaveMutation.isPending ? (
+                {(joinMutation.isPending || leaveMutation.isPending || initPaymentMutation.isPending) ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : event.isJoined ? (
-                  <>Se désinscrire</>
+                  "Se désinscrire"
+                ) : isPaid ? (
+                  <>
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Payer et s'inscrire — {new Intl.NumberFormat("fr-FR", { style: "currency", currency: event.currency || "EUR" }).format(Number(event.price))}
+                  </>
                 ) : (
-                  <>Rejoindre cet événement</>
+                  "Rejoindre cet événement"
                 )}
               </Button>
             )}
@@ -392,16 +435,6 @@ export default function EventDetailsPage() {
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="bg-accent/20 border border-accent/50 rounded-2xl p-5 space-y-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold">Événement intéressant !</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {event.participantCount} personne{event.participantCount > 1 ? 's' : ''} intéressée{event.participantCount > 1 ? 's' : ''}{event.participantCount > 0 ? '.' : 's'}
-              </p>
-            </div>
           </div>
         </motion.div>
       </div>

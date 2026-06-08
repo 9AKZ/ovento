@@ -23,6 +23,17 @@ router.post(
 router.use(authenticate);
 
 /**
+ * @route POST /api/payments/:id/stripe-confirm
+ * @desc Confirm Stripe payment from frontend (no webhook needed on localhost)
+ * @access Private
+ */
+router.post(
+  '/:id/stripe-confirm',
+  validate(paymentIdSchema),
+  PaymentController.confirmFromStripe,
+);
+
+/**
  * @route GET /api/payments/:id/status
  * @desc Get payment status
  * @access Private

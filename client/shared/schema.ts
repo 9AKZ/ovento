@@ -21,7 +21,12 @@ export const userSchema = z.object({
 
 export const insertUserSchema = z.object({
   email: z.string().email("Email invalide"),
-  password: z.string().min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+  password: z.string()
+    .min(8, "Le mot de passe doit contenir au moins 8 caractères")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])/,
+      "Le mot de passe doit contenir une majuscule, une minuscule, un chiffre et un caractère spécial",
+    ),
   fullName: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   role: z.enum(["USER", "ORGANIZER"]).optional().default("USER"),
 });
@@ -45,6 +50,11 @@ export const eventSchema = z.object({
   status: z.enum(["DRAFT", "PUBLISHED", "CANCELLED"]).default("DRAFT"),
   imageUrl: z.string().nullable().optional(),
   organizerId: z.string().or(z.number()),
+  organizer: z.object({
+    id: z.string().or(z.number()),
+    fullName: z.string(),
+    avatarUrl: z.string().nullable().optional(),
+  }).optional(),
   isOwner: z.boolean().optional(),
   isJoined: z.boolean().optional(),
   createdAt: z.string().optional(),

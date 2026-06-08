@@ -67,7 +67,7 @@ class EventService {
           event_id: eventId,
           user_id: userId,
           status: {
-            [Op.in]: ['CONFIRMED', 'PENDING'],
+            [Op.in]: ['CONFIRMED'],
           },
         },
       });
@@ -103,12 +103,20 @@ class EventService {
         const obj = e.toPublicJSON();
         if (obj.imageUrl === null) delete obj.imageUrl;
         if (obj.tags == null) obj.tags = [];
+        // Include organizer info
+        if (e.organizer) {
+          obj.organizer = {
+            id: e.organizer.id,
+            fullName: e.organizer.full_name,
+            avatarUrl: e.organizer.avatar_url ?? undefined,
+          };
+        }
         // Add isJoined for each event (compare event_id AND event?.id)
         if (userId) {
           obj.isJoined = userInscriptions.some(
             (insc) =>
               ((insc.event && insc.event.id === e.id) || insc.event_id === e.id) &&
-                ['CONFIRMED', 'PENDING'].includes(insc.status),
+                ['CONFIRMED'].includes(insc.status),
           );
         } else {
           obj.isJoined = false;

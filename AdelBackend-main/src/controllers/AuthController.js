@@ -127,6 +127,8 @@ class AuthController {
 
       res.json({
         message: 'Token refreshed',
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
       });
     } catch (error) {
       next(error);

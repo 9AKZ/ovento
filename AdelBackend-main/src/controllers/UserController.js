@@ -143,6 +143,21 @@ class UserController {
   }
 
   /**
+   * Delete own account (RGPD — droit à l'effacement)
+   * DELETE /api/users/me
+   */
+  async deleteOwnAccount(req, res, next) {
+    try {
+      await UserService.deleteUser(req.userId);
+      res.clearCookie('accessToken');
+      res.clearCookie('refreshToken');
+      res.json({ message: 'Votre compte a bien été supprimé.' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
    * Delete user (admin only)
    * DELETE /api/users/:id
    */

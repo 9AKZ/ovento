@@ -47,10 +47,26 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const httpServer = createServer(app);
 
+const allowedSocketOrigins = [
+  'http://localhost:8080',
+  'http://localhost:3000',
+  'http://127.0.0.1:8080',
+  'http://127.0.0.1:3000',
+  'http://192.168.56.1:8081',
+  'exp://192.168.56.1:8081',
+  'exp://192.168.101.218:8081',
+];
+
 // Initialize Socket.io
 const io = new SocketServer(httpServer, {
   cors: {
-    origin: 'http://localhost:8080',
+    origin: (origin, callback) => {
+      if (!origin || allowedSocketOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Allow in development
+      }
+    },
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -70,7 +86,9 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:', 'https:'],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", 'https://js.stripe.com'],
+      frameSrc: ["'self'", 'https://js.stripe.com', 'https://hooks.stripe.com'],
+      connectSrc: ["'self'", 'https://api.stripe.com'],
     },
   },
 }));
@@ -166,6 +184,16 @@ io.on('connection', (socket) => {
 // Export function to emit events
 export function emitEvent(room, eventName, data) {
   io.to(room).emit(eventName, data);
+}
+
+// Serve React frontend in production (must be after API routes)
+if (process.env.NODE_ENV === 'production') {
+  const clientBuildPath = path.join(__dirname, '../../client/dist');
+  app.use(express.static(clientBuildPath));
+  // SPA fallback — send index.html for any non-API route
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
+  });
 }
 
 // 404 handler

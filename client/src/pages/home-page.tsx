@@ -1,19 +1,17 @@
 import { useState } from "react";
 import { useEvents, useJoinEvent, useLeaveEvent, useDeleteEvent } from "@/hooks/use-events";
 import { useAuth } from "@/hooks/use-auth";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { format } from "date-fns";
-import { 
-  MapPin, 
-  Calendar, 
-  Users, 
-  Search, 
-  Filter, 
-  Euro,
+import { fr } from "date-fns/locale";
+import {
+  MapPin,
+  Calendar,
+  Users,
+  Search,
+  Filter,
   Loader2,
   Trash2,
-  Sparkles,
-  Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,19 +45,24 @@ export default function HomePage() {
   };
 
   const { data: events, isLoading, error } = useEvents(apiFilters);
-  console.log('DEBUG: home events', { events, isLoading, error });
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   const joinMutation = useJoinEvent();
   const leaveMutation = useLeaveEvent();
   const deleteMutation = useDeleteEvent();
 
-  const handleJoinToggle = (eventId: string | number, isJoined: boolean) => {
+  const handleJoinToggle = (eventId: string | number, isJoined: boolean, price: number | string) => {
     if (!user) return;
     if (isJoined) {
       leaveMutation.mutate(String(eventId));
-    } else {
-      joinMutation.mutate(String(eventId));
+      return;
     }
+    if (Number(price) > 0) {
+      // For paid events, redirect to detail page to pay
+      setLocation(`/event/${eventId}`);
+      return;
+    }
+    joinMutation.mutate(String(eventId));
   };
 
   if (error) {
@@ -73,60 +76,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="space-y-12">
-
-      {/* Hero Section */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary/15 via-secondary/10 to-primary/5 border border-border/30 p-8 md:p-12 min-h-64 flex items-center"
-      >
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-10 right-20 w-40 h-40 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-          <div className="absolute -bottom-10 left-10 w-56 h-56 bg-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s' }} />
-        </div>
-
-        <div className="relative z-10 w-full">
-          <div className="flex items-center gap-2 mb-4 text-primary">
-            <Sparkles className="w-5 h-5" />
-            <span className="text-sm font-semibold uppercase tracking-wider">Découvrez</span>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="glass-card rounded-2xl p-5 flex flex-col md:flex-row gap-4"
-          >
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher des événements..."
-                className="pl-11 h-11 bg-background/50 border-border/40 focus:ring-primary/30"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="w-full md:w-52">
-              <Select value={filter} onValueChange={setFilter}>
-                <SelectTrigger className="h-11 bg-background/50 border-border/40 focus:ring-primary/30">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <SelectValue placeholder="Filtrer par" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les dates</SelectItem>
-                  <SelectItem value="today">Aujourd'hui</SelectItem>
-                  <SelectItem value="week">Cette semaine</SelectItem>
-                  <SelectItem value="weekend">Ce week-end</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </motion.div>
-        </div>
-      </motion.div>
+    <div className="space-y-8">
 
       {/* Filters Bar */}
       <div className="bg-card rounded-xl p-4 shadow-sm border border-border/50 flex flex-col md:flex-row gap-4">
@@ -191,7 +141,7 @@ export default function HomePage() {
                   <img
                     src={event.imageUrl}
                     alt={event.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-secondary/20">
@@ -199,8 +149,8 @@ export default function HomePage() {
                   </div>
                 )}
                 <div className="absolute top-3 right-3 flex gap-2">
-                  <Badge className="glass-badge bg-white/80">
-                    {Number(event.price) === 0 ? "Gratuit" : `€${event.price}`}
+                  <Badge className="bg-primary text-white border-0 shadow-sm px-3 py-1.5 rounded-full text-xs font-semibold">
+                    {Number(event.price) === 0 ? 'Gratuit' : `${event.price}€`}
                   </Badge>
                   {event.status === "DRAFT" && (
                     <Badge variant="secondary" className="glass-badge">Brouillon</Badge>
@@ -229,7 +179,7 @@ export default function HomePage() {
                 <div className="space-y-3 mb-6 flex-1">
                   <div className="flex items-center text-sm text-muted-foreground gap-2">
                     <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
-                    <span className="text-xs font-medium">{format(new Date(event.startDatetime), "d MMM • HH:mm")}</span>
+                    <span className="text-xs font-medium">{format(new Date(event.startDatetime), "d MMM • HH:mm", { locale: fr })}</span>
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground gap-2">
                     <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
@@ -251,7 +201,7 @@ export default function HomePage() {
                     </div>
                     <div className="w-full bg-muted h-2.5 rounded-full overflow-hidden shadow-sm">
                       <div
-                        className="bg-gradient-to-r from-primary to-secondary h-full rounded-full transition-all duration-300 shadow-md"
+                        className="bg-primary h-full rounded-full transition-all duration-300"
                         style={{ width: `${Math.min((event.currentParticipants / event.capacity) * 100, 100)}%` }}
                       />
                     </div>
@@ -293,21 +243,20 @@ export default function HomePage() {
                       </AlertDialog>
                     ) : (
                       <Button
-                        onClick={() => handleJoinToggle(event.id, !!event.isJoined)}
+                        onClick={() => handleJoinToggle(event.id, !!event.isJoined, event.price)}
                         disabled={joinMutation.isPending || leaveMutation.isPending}
                         size="sm"
-                        className={`flex-1 font-semibold transition-all ${
-                          event.isJoined
-                            ? "bg-destructive/10 text-destructive border border-destructive/30 hover:bg-destructive/15"
-                            : "bg-gradient-to-r from-primary to-secondary text-white border-0 hover:shadow-lg"
-                        }`}
+                        variant={event.isJoined ? "outline" : "default"}
+                        className={`flex-1 ${event.isJoined ? "text-destructive border-destructive/50 hover:bg-destructive/10" : ""}`}
                       >
                         {(joinMutation.isPending || leaveMutation.isPending) ? (
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         ) : event.isJoined ? (
-                          <>Se désinscrire</>
+                          "Se désinscrire"
+                        ) : Number(event.price) > 0 ? (
+                          `Voir — ${event.price}€`
                         ) : (
-                          <>Rejoindre</>
+                          "Rejoindre"
                         )}
                       </Button>
                     )

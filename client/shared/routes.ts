@@ -192,6 +192,42 @@ export const api = {
       },
     },
   },
+  payments: {
+    initialize: {
+      method: 'POST' as const,
+      path: '/api/events/:id/payments',
+      responses: {
+        201: z.object({
+          paymentId: z.string(),
+          amount: z.number(),
+          currency: z.string(),
+          clientSecret: z.string().nullable(),
+          status: z.string(),
+        }),
+      },
+    },
+    status: {
+      method: 'GET' as const,
+      path: '/api/payments/:id/status',
+      responses: {
+        200: z.object({
+          payment: z.object({
+            id: z.string(),
+            status: z.enum(['PENDING', 'PAID', 'FAILED', 'REFUNDED']),
+            amount: z.number().or(z.string()),
+            currency: z.string(),
+          }),
+        }),
+      },
+    },
+    refund: {
+      method: 'POST' as const,
+      path: '/api/payments/:id/refund',
+      responses: {
+        200: z.object({ message: z.string() }),
+      },
+    },
+  },
 };
 
 export function buildUrl(path: string, params?: Record<string, string | number>): string {

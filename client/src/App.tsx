@@ -18,9 +18,14 @@ import CreateEventPage from "@/pages/create-event-page";
 import EventDetailsPage from "@/pages/event-details-page";
 import ProfilePage from "@/pages/profile-page";
 import AdminDashboardPage from "@/pages/admin-dashboard-page";
+import PaymentPage from "@/pages/payment-page";
 import NotFoundPage from "@/pages/not-found";
+import PrivacyPage from "@/pages/privacy-page";
+import LegalPage from "@/pages/legal-page";
+import CookieBanner from "@/components/CookieBanner";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
+import { Toaster } from "@/components/ui/toaster";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { user, logoutMutation } = useAuth();
@@ -169,6 +174,19 @@ export function Layout({ children }: { children: ReactNode }) {
       {/* Main Content */}
       <main className="flex-1 w-full max-w-[100vw] overflow-x-hidden md:ml-0 pt-16 md:pt-0">
         <div className="max-w-7xl mx-auto p-4 md:p-8 lg:p-12">{children}</div>
+        <footer className="border-t border-border/30 mt-8 px-4 md:px-8 lg:px-12 py-6">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span>© {new Date().getFullYear()} Ôvento</span>
+            <div className="flex items-center gap-4">
+              <Link href="/politique-de-confidentialite" className="hover:text-foreground transition-colors">
+                Politique de confidentialité
+              </Link>
+              <Link href="/mentions-legales" className="hover:text-foreground transition-colors">
+                Mentions légales
+              </Link>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   );
@@ -184,6 +202,9 @@ function AppRoutes() {
         <Route path="/event/:id" component={EventDetailsPage} />
         <Route path="/profile" component={ProfilePage} />
         <Route path="/admin" component={AdminDashboardPage} />
+        <Route path="/payment/:id" component={PaymentPage} />
+        <Route path="/politique-de-confidentialite" component={PrivacyPage} />
+        <Route path="/mentions-legales" component={LegalPage} />
         <Route component={NotFoundPage} />
       </Switch>
     </Layout>
@@ -195,6 +216,8 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AppRoutes />
+        <Toaster />
+        <CookieBanner />
       </AuthProvider>
     </QueryClientProvider>
   );

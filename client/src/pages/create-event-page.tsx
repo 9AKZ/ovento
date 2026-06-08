@@ -17,10 +17,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, Calendar as CalendarIcon, Upload, Sparkles, MapPin, Users } from "lucide-react";
+import { Loader2, Calendar as CalendarIcon, Upload, MapPin, Users } from "lucide-react";
 import { useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import { motion } from "framer-motion";
 
 // Extend schema to handle array transformation and defaults
@@ -95,23 +96,10 @@ export default function CreateEventPage() {
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-10"
-      >
-        <div className="flex items-center gap-2 mb-3 text-primary">
-          <Sparkles className="w-5 h-5" />
-          <span className="text-sm font-semibold uppercase tracking-wider">Créer</span>
-        </div>
-        <h1 className="text-4xl md:text-5xl font-display font-bold mb-2">
-          Lancez votre Événement <span className="gradient-text">Extraordinaire</span>
-        </h1>
-        <p className="text-lg text-muted-foreground">
-          Partagez votre passion et connectez une communauté autour de votre événement.
-        </p>
-      </motion.div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-display font-bold mb-2">Créer un événement</h1>
+        <p className="text-muted-foreground">Renseignez les informations de votre événement.</p>
+      </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Form Section */}
@@ -305,9 +293,9 @@ export default function CreateEventPage() {
                 <Button type="button" variant="outline" onClick={() => setLocation("/")} className="rounded-lg">
                   Annuler
                 </Button>
-                <Button 
-                  type="submit" 
-                  className="bg-gradient-to-r from-primary to-secondary text-white border-0 rounded-lg px-6 font-semibold hover:shadow-lg transition-all"
+                <Button
+                  type="submit"
+                  className="rounded-lg px-6"
                   disabled={createEventMutation.isPending || uploadImageMutation.isPending}
                 >
                   {(createEventMutation.isPending || uploadImageMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
@@ -317,7 +305,6 @@ export default function CreateEventPage() {
             </form>
           </Form>
         </motion.div>
-        </div>
 
         {/* Preview Section */}
         <motion.div
@@ -346,7 +333,7 @@ export default function CreateEventPage() {
                   </div>
                 )}
                 <div className="absolute top-3 right-3">
-                  <Badge className="glass-badge bg-white/80">
+                  <Badge className="glass-badge bg-primary text-white">
                     {Number(form.watch("price")) === 0 ? "Gratuit" : `€${form.watch("price") || 0}`}
                   </Badge>
                 </div>
@@ -369,7 +356,7 @@ export default function CreateEventPage() {
                   {form.watch("startDatetime") && (
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="w-4 h-4 text-secondary" />
-                      <span>{format(new Date(form.watch("startDatetime")), "d MMM • HH:mm")}</span>
+                      <span>{format(new Date(form.watch("startDatetime")), "d MMM • HH:mm", { locale: fr })}</span>
                     </div>
                   )}
                   {form.watch("location") && (
@@ -387,7 +374,7 @@ export default function CreateEventPage() {
                   </div>
                 </div>
 
-                <Button size="sm" className="w-full h-9 bg-gradient-to-r from-primary to-secondary text-white border-0 rounded-lg font-semibold">
+                <Button size="sm" className="w-full h-9">
                   Rejoindre
                 </Button>
               </div>
@@ -395,5 +382,6 @@ export default function CreateEventPage() {
           </div>
         </motion.div>
       </div>
+    </div>
   );
 }

@@ -51,7 +51,7 @@ class PaymentController {
 
       // If Stripe is configured, verify webhook signature
       if (process.env.STRIPE_WEBHOOK_SECRET && sig) {
-        const Stripe = (await import('stripe')).default;
+        const { default: Stripe } = await import('stripe');
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
         try {
@@ -73,6 +73,26 @@ class PaymentController {
       }
 
       const result = await PaymentService.handleStripeWebhook(event);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Confirm payment from Stripe frontend (replaces webhook for localhost)
+   * POST /api/payments/:id/stripe-confirm
+   */
+  async confirmFromStripe(req, res, next) {
+    try {
+      const { id: paymentId } = req.params;
+      const { paymentIntentId } = req.body;
+
+      if (!paymentIntentId) {
+        return res.status(400).json({ error: 'paymentIntentId is required', code: 'MISSING_INTENT_ID' });
+      }
+
+      const result = await PaymentService.confirmFromStripe(paymentId, paymentIntentId);
       res.json(result);
     } catch (error) {
       next(error);

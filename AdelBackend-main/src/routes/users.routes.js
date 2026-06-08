@@ -109,6 +109,13 @@ router.patch(
 );
 
 /**
+ * @route DELETE /api/users/me
+ * @desc Delete own account (RGPD right to erasure)
+ * @access Private
+ */
+router.delete('/me', UserController.deleteOwnAccount);
+
+/**
  * @route DELETE /api/users/:id
  * @desc Delete user (admin only)
  * @access Private/Admin
