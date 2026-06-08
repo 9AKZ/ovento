@@ -55,7 +55,7 @@ const allowedSocketOrigins = [
   'http://192.168.56.1:8081',
   'exp://192.168.56.1:8081',
   'exp://192.168.101.218:8081',
-  'https://ovento-3be5izn7n-9akzs-projects.vercel.app',
+  'https://ovento-five.vercel.app',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
@@ -107,7 +107,7 @@ const corsOptions = {
       'http://192.168.56.1:8081',
       'exp://192.168.56.1:8081',
       'exp://192.168.101.218:8081',
-      'https://ovento-3be5izn7n-9akzs-projects.vercel.app',
+      'https://ovento-five.vercel.app',
       process.env.FRONTEND_URL,
     ].filter(Boolean);
     if (!origin || allowedOrigins.includes(origin)) {
