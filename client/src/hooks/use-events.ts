@@ -64,9 +64,13 @@ export function useMyEvents() {
         const error = await res.json();
         throw new Error(error.message || 'Impossible de charger vos événements');
       }
-      return api.events.myEvents.responses[200].parse(await res.json());
+      const data = await res.json();
+      const events = data.events || data;
+      return api.events.myEvents.responses[200].parse(events);
     },
     enabled: true,
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 }
 

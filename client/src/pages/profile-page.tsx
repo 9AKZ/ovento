@@ -49,13 +49,17 @@ export default function ProfilePage() {
 
   // Fetch joined events
   const { data: joinedEvents, isLoading: loadingJoined } = useQuery({
-    queryKey: [api.events.list.path, "joined"], 
+    queryKey: [api.events.list.path, "joined"],
     queryFn: async () => {
       const res = await fetch(api.events.list.path, { credentials: "include" });
-      const allEvents = api.events.list.responses[200].parse(await res.json());
-      return allEvents.filter(e => e.isJoined);
+      const data = await res.json();
+      const events = data.events || data;
+      const allEvents = api.events.list.responses[200].parse(events);
+      return allEvents.filter((e: any) => e.isJoined);
     },
     enabled: !!user,
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   if (!user) return <div>Veuillez vous connecter</div>;
