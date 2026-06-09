@@ -9,7 +9,7 @@ class UserController {
   async getProfile(req, res, next) {
     try {
       const profile = await UserService.getProfile(req.userId);
-      res.json({ user: profile });
+      res.json({ user: { ...profile, lastLoginAt: req.lastLoginAt ?? null } });
     } catch (error) {
       next(error);
     }

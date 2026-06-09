@@ -64,11 +64,12 @@ export function verifyRefreshToken(token) {
  * @param {Object} user - User object
  * @returns {Object} Object containing accessToken and refreshToken
  */
-export function generateTokenPair(user) {
+export function generateTokenPair(user, lastLoginAt = null) {
   const payload = {
     userId: user.id,
     email: user.email,
     role: user.role,
+    lastLoginAt,
   };
 
   return {

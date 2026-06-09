@@ -180,6 +180,11 @@ export default function HomePage() {
                   <div className="flex items-center text-sm text-muted-foreground gap-2">
                     <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
                     <span className="text-xs font-medium">{format(new Date(event.startDatetime), "d MMM • HH:mm", { locale: fr })}</span>
+                    {typeof event.daysUntilStart === "number" && event.daysUntilStart >= 0 && (
+                      <span className={"ml-auto text-xs font-bold px-2 py-0.5 rounded-full " + (event.daysUntilStart < 3 ? "bg-red-100 text-red-600" : "bg-muted text-muted-foreground")}>
+                        {event.daysUntilStart === 0 ? "Aujourd’hui" : "J-" + event.daysUntilStart}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center text-sm text-muted-foreground gap-2">
                     <MapPin className="w-4 h-4 text-primary flex-shrink-0" />

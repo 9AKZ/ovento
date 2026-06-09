@@ -34,10 +34,18 @@ class Event extends Model {
    * Convert to public JSON
    */
   toPublicJSON() {
+    const daysUntilStart = Math.ceil((new Date(this.start_datetime) - Date.now()) / 86400000);
+
+    const isMonday = new Date().getDay() === 1;
+    const originalPrice = parseFloat(this.price);
+    const discountedPrice =
+      isMonday && daysUntilStart >= 0 && daysUntilStart < 3 && originalPrice > 0
+        ? parseFloat((originalPrice * 0.75).toFixed(2))
+        : undefined;
+
     return {
       id: this.id,
       title: this.title,
-      // normalize nullable optional fields to undefined for client Zod validation
       description: this.description ?? undefined,
       location: this.location,
       startDatetime: this.start_datetime,
@@ -53,6 +61,8 @@ class Event extends Model {
       tags: Array.isArray(this.tags) ? this.tags : [],
       createdAt: this.created_at,
       updatedAt: this.updated_at,
+      daysUntilStart,
+      discountedPrice,
     };
   }
 }
@@ -147,4 +157,3 @@ Event.init(
 );
 
 export default Event;
-

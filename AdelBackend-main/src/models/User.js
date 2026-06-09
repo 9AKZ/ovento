@@ -93,6 +93,10 @@ User.init(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    last_login_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     sequelize,

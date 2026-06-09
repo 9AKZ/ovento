@@ -67,6 +67,11 @@ export function Layout({ children }: { children: ReactNode }) {
               <div className="truncate">
                 <p className="text-sm font-semibold truncate">{user.fullName}</p>
                 <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                {user.lastLoginAt && (
+                  <p className="text-[10px] text-muted-foreground/70 truncate mt-0.5">
+                    Dernière connexion : {new Date(user.lastLoginAt).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                )}
               </div>
             </div>
             <Button

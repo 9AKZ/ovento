@@ -58,6 +58,7 @@ export async function authenticate(req, res, next) {
     req.userId = user.id;
     req.userRole = user.role;
     req.token = token;
+    req.lastLoginAt = decoded.lastLoginAt ?? null;
 
     next();
   } catch (error) {

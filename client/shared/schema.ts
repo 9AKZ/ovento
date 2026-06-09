@@ -17,6 +17,7 @@ export const userSchema = z.object({
   avatarUrl: z.string().nullable().optional(),
   isVerified: z.boolean().default(false),
   createdAt: z.string().optional(),
+  lastLoginAt: z.string().or(z.date()).nullable().optional(),
 });
 
 export const insertUserSchema = z.object({
@@ -58,6 +59,8 @@ export const eventSchema = z.object({
   isOwner: z.boolean().optional(),
   isJoined: z.boolean().optional(),
   createdAt: z.string().optional(),
+  daysUntilStart: z.number().optional(),
+  discountedPrice: z.number().optional(),
 });
 
 export const insertEventSchema = z.object({
