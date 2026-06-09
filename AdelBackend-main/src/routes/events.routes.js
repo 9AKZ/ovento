@@ -38,7 +38,6 @@ router.get(
 router.get(
   '/my-events',
   authenticate,
-  requireOrganizer,
   EventController.getMyEvents,
 );
 
