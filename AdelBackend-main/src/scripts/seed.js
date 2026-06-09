@@ -119,6 +119,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "Une soirée intimiste dans une cave voûtée du Marais pour découvrir le jazz manouche dans son ambiance la plus authentique. Trois groupes se succèdent sur scène, le bar propose des cocktails maison et une sélection de vins naturels. L'occasion parfaite pour passer une belle soirée, que vous soyez amateur de jazz ou simplement curieux.",
     location: 'Le Marais, Paris',
     deltaStartDays: 4,
+    startHour: 20, startMinute: 0,
     durationHours: 4,
     capacity: 80,
     price: 18.0,
@@ -133,6 +134,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "Une balade guidée de 12 km à travers les rochers et les chênes centenaires de la forêt de Fontainebleau. Le guide naturaliste partage ses connaissances sur la faune et la flore locales tout au long du parcours. Départ en train depuis Paris-Lyon, pique-nique tiré du sac à mi-parcours. Niveau facile, ouvert à tous dès 10 ans.",
     location: 'Fontainebleau, Île-de-France',
     deltaStartDays: 6,
+    startHour: 9, startMinute: 0,
     durationHours: 6,
     capacity: 20,
     price: 0,
@@ -147,6 +149,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "Apprenez à préparer un vrai repas italien de A à Z avec un chef originaire de Naples : pasta fraîche tiramisù et risotto aux champignons sauvages. Le cours se déroule dans une cuisine équipée en petits groupes de 8 personnes maximum. Vous repartez avec les recettes et vous dégustez ce que vous avez cuisiné autour d'un verre de vin.",
     location: 'Vieux-Port, Marseille',
     deltaStartDays: 9,
+    startHour: 14, startMinute: 30,
     durationHours: 3,
     capacity: 8,
     price: 55.0,
@@ -161,6 +164,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "Plongez dans l'univers fascinant des vins naturels avec notre sommelière certifiée. Au programme : 8 vins sélectionnés chez de petits vignerons, accompagnés d'un plateau de fromages affinés et de charcuteries artisanales. Vous apprendrez à décrypter les étiquettes, identifier les arômes et comprendre ce qui différencie un vin nature d'un vin conventionnel. Accessible à tous, même aux novices.",
     location: 'Toulouse, France',
     deltaStartDays: 12,
+    startHour: 18, startMinute: 30,
     durationHours: 3,
     capacity: 20,
     price: 45.0,
@@ -175,6 +179,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "12 heures de musique électronique non-stop dans un hangar industriel reconverti en salle de concert. Trois scènes accueillent des DJs locaux et des artistes venus de toute l'Europe : techno, house, ambient et drum & bass. Bar, food trucks et espace chill-out. Le festival s'engage pour la sécurité de tous ses participants avec une équipe de médiateurs présente toute la nuit.",
     location: 'Bordeaux, France',
     deltaStartDays: 18,
+    startHour: 22, startMinute: 0,
     durationHours: 12,
     capacity: 1200,
     price: 29.0,
@@ -189,6 +194,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "Partez explorer la ville autrement avec un photographe professionnel. Pendant 4 heures, vous apprenez à composer une image, jouer avec la lumière naturelle et capturer l'âme d'un quartier. L'atelier se termine par un retour en studio pour sélectionner et retoucher vos meilleures photos. Adapté aux débutants comme aux photographes confirmés. Apportez votre appareil photo ou smartphone.",
     location: 'Belleville, Paris',
     deltaStartDays: 14,
+    startHour: 10, startMinute: 0,
     durationHours: 4,
     capacity: 10,
     price: 39.0,
@@ -203,6 +209,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "Chaque premier dimanche du mois, une cinquantaine de créateurs locaux investissent la cour de la Manufacture pour exposer et vendre leurs œuvres : céramique, illustrations, bijoux, textiles et mobilier design. Entrée libre, animations musicales toute la journée et restauration sur place. Un événement convivial pour soutenir l'artisanat local et découvrir de nouveaux talents.",
     location: 'Lille, France',
     deltaStartDays: 3,
+    startHour: 10, startMinute: 0,
     durationHours: 8,
     capacity: 500,
     price: 0,
@@ -217,6 +224,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "Une séance de yoga douce pour bien commencer la semaine, en plein air face à la mer. Ouverte à tous les niveaux, elle mêle postures de hatha yoga, exercices de respiration et quelques minutes de méditation guidée. Apportez votre tapis et une couverture légère pour la relaxation finale. En cas de pluie, la séance se tient sous la grande halle du parc.",
     location: "Plage des Catalans, Marseille",
     deltaStartDays: 2,
+    startHour: 7, startMinute: 30,
     durationHours: 1.5,
     capacity: 30,
     price: 0,
@@ -231,6 +239,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "Vivez une aventure immersive en équipe dans les couloirs d'un château du XVIIe siècle. Vous avez 90 minutes pour résoudre des énigmes, déjouer des pièges et percer le mystère de la disparition du comte de Monfort. Groupes de 4 à 8 personnes, accessible dès 12 ans. Idéal pour un anniversaire, un team-building ou simplement une sortie originale entre amis.",
     location: 'Château de Pierrefonds, Oise',
     deltaStartDays: 21,
+    startHour: 15, startMinute: 0,
     durationHours: 2,
     capacity: 40,
     price: 22.0,
@@ -245,6 +254,7 @@ const EVENT_TEMPLATES = (organizers) => ([
     description: "Trois intervenants — une chercheuse en IA, un philosophe de l'éthique numérique et une journaliste spécialisée — débattent des enjeux concrets de l'intelligence artificielle dans nos vies : emploi, santé, liberté d'expression et désinformation. Format TEDx suivi d'un temps d'échange avec le public. Entrée libre sur inscription, places limitées.",
     location: 'Cité des Sciences, Paris',
     deltaStartDays: 25,
+    startHour: 18, startMinute: 0,
     durationHours: 3,
     capacity: 200,
     price: 0,
@@ -264,11 +274,12 @@ async function seedEvents({ organizers = [], eventsCount = 8 } = {}) {
   for (let i = 0; i < Math.min(eventsCount, templates.length); i++) {
     const t = templates[i];
     const start = new Date(Date.now() + t.deltaStartDays * 24 * 60 * 60 * 1000);
+    start.setHours(t.startHour ?? 14, t.startMinute ?? 0, 0, 0);
     const end = t.durationDays
       ? new Date(start.getTime() + t.durationDays * 24 * 60 * 60 * 1000)
       : new Date(start.getTime() + (t.durationHours || 2) * 60 * 60 * 1000);
 
-    const [event] = await Event.findOrCreate({
+    const [event, created] = await Event.findOrCreate({
       where: { title: t.title },
       defaults: {
         id: uuidv4(),
@@ -286,6 +297,10 @@ async function seedEvents({ organizers = [], eventsCount = 8 } = {}) {
         image_url: t.image_url,
       },
     });
+    // Always update times so re-running the seed fixes existing events
+    if (!created) {
+      await event.update({ start_datetime: start, end_datetime: end });
+    }
     events.push(event);
     console.log(`   ✅ Événement présent/créé : ${event.title}`);
   }
